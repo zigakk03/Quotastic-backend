@@ -26,7 +26,11 @@ export class AuthService {
       throw new BadRequestException('Invalid credentials')
     }
 
-    Logger.warn('User is valid.')
+    Logger.log('User is valid.')
     return user
+  }
+
+  async generateJwt(user: User): Promise<string> {
+    return this.jwtService.signAsync({ sub: user.user_id, name: user.email })
   }
 }
