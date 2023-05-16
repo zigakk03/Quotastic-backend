@@ -1,8 +1,8 @@
 import { ConfigService } from '@nestjs/config'
 import { TypeOrmModuleOptions } from '@nestjs/typeorm'
-import { Like } from 'src/entities/like.entity'
-import { Quote } from 'src/entities/quote.entity'
-import { User } from 'src/entities/user.entity'
+import { Like } from 'entities/like.entity'
+import { Quote } from 'entities/quote.entity'
+import { User } from 'entities/user.entity'
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions'
 
 type ConfigType = TypeOrmModuleOptions & PostgresConnectionOptions

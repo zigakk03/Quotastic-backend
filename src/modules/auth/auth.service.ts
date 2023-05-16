@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { compareHash, hash } from 'src/utils/bcrypt';
+import { compareHash } from 'utils/bcrypt';
 import { RegisterUserDto } from './dto/register-user.dto';
-import { User } from 'src/entities/user.entity';
-import {UserService} from 'src/modules/user/user.service'
+import { User } from 'entities/user.entity';
+import {UserService} from 'modules/user/user.service'
 import { JwtService } from '@nestjs/jwt'
 
 
@@ -11,8 +11,6 @@ export class AuthService {
   constructor(private userService: UserService, private jwtService: JwtService) {}
 
   async register(registerUserDto: RegisterUserDto): Promise<User> {
-    //hash
-
     return await this.userService.create({
       ...registerUserDto,
     })

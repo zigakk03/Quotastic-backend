@@ -3,9 +3,9 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from 'src/entities/user.entity';
-import { AbstractService } from 'src/common/abstract.service';
-import { hash } from 'src/utils/bcrypt';
+import { User } from 'entities/user.entity';
+import { AbstractService } from 'common/abstract.service';
+import { hash } from 'utils/bcrypt';
 
 @Injectable()
 export class UserService extends AbstractService{
@@ -18,6 +18,9 @@ export class UserService extends AbstractService{
     if (user) {
       throw new BadRequestException('User already exists.')
     }
+
+    createUserDto.password = await hash(createUserDto.password)
+    createUserDto.confirm_password = await hash(createUserDto.confirm_password)
     
     try {
       const newUser = this.usersRepository.create({ ...createUserDto,})
