@@ -1,4 +1,4 @@
-import { Controller, HttpStatus, Body, HttpCode, Post, UseGuards, Req, Res } from '@nestjs/common';
+import { Controller, HttpStatus, Body, HttpCode, Post, UseGuards, Req, Res, Logger } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import {Public} from 'decorators/public.decorator'
@@ -30,5 +30,12 @@ export class AuthController {
     const access_token = await this.authService.generateJwt(req.user)
     res.cookie('access_token', access_token, { httpOnly: true })
     return req.user
+  }
+
+  @ApiCreatedResponse({ description: 'Logs out the user.' })
+  @Post('signout')
+  @HttpCode(HttpStatus.OK)
+  async signout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('access_token');
   }
 }
