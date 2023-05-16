@@ -17,3 +17,6 @@ Content-Type: application/json
   	"email": "john@gmail.com",
   	"password": "John1234!"
 }
+
+### POST /signout
+POST http://localhost:8080/signout HTTP/1.1
