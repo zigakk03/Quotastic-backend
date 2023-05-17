@@ -20,3 +20,7 @@ Content-Type: application/json
 
 ### POST /signout
 POST http://localhost:8080/signout HTTP/1.1
+
+
+### GET /me
+GET http://localhost:8080/me HTTP/1.1

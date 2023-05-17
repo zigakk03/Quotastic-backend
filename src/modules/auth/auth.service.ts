@@ -27,10 +27,11 @@ export class AuthService {
     }
 
     Logger.log('User is valid.')
+    user.password = undefined
     return user
   }
 
   async generateJwt(user: User): Promise<string> {
-    return this.jwtService.signAsync({ sub: user.user_id, name: user.email })
+    return this.jwtService.signAsync({ sub: user.id, name: user.email })
   }
 }

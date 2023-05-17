@@ -10,7 +10,7 @@ export class Like{
   @PrimaryGeneratedColumn('uuid')
   @IsUUID()
   @Expose()
-  like_id: string;
+  id: string;
 
   @Column({ nullable: true })
   liked: boolean;

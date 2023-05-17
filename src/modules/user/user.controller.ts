@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Request } from 'express';
 
-@Controller('user')
+@Controller('me')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -13,13 +14,14 @@ export class UserController {
   }
 
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  loggedInUser(@Req() req: Request) {
+    const token = req.cookies['access_token']
+    return this.userService.findLoggedInUser(token);
   }
 
-  @Get(':id')
+  @Get('find/:id')
   findOne(@Param('id') id: string) {
-    return this.userService.findOne(id);
+    return this.userService.findById(id);
   }
 
   @Patch(':id')
@@ -29,6 +31,6 @@ export class UserController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.userService.remove(id);
+    //return this.userService.remove(id);
   }
 }
