@@ -3,6 +3,8 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Request } from 'express';
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
+import { User } from 'entities/user.entity';
 
 @Controller('me')
 export class UserController {
@@ -24,13 +26,19 @@ export class UserController {
     return this.userService.findById(id);
   }
 
-  @Patch(':id')
+  @Patch('update-password')
+  updatePassword(@Body() updateUserPasswordDto: UpdateUserPasswordDto, @Req() req: Request) {
+    const token = req.cookies['access_token']
+    return this.userService.updatePassword(token, updateUserPasswordDto);
+  }
+  
+  @Patch('update/:id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(id, updateUserDto);
   }
-
+  
   @Delete(':id')
   remove(@Param('id') id: string) {
-    //return this.userService.remove(id);
+    return this.userService.remove(id);
   }
 }
