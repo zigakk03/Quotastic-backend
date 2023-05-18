@@ -1,15 +1,20 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { User } from 'entities/user.entity';
 import { AbstractService } from 'common/abstract.service';
-import { hash } from 'utils/bcrypt';
+import { compareHash, hash } from 'utils/bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 
 @Injectable()
 export class UserService extends AbstractService{
-  constructor(@InjectRepository(User) private readonly usersRepository: Repository<User>) {
+  constructor(
+    @InjectRepository(User) private readonly usersRepository: Repository<User>,
+    private jwtService: JwtService
+    ) {
     super(usersRepository)
   }
 
@@ -24,18 +29,92 @@ export class UserService extends AbstractService{
     
     try {
       const newUser = this.usersRepository.create({ ...createUserDto,})
-      return this.usersRepository.save(newUser)
+      return await this.usersRepository.save(newUser)
     } catch (error) {
       Logger.error(error)
       throw new BadRequestException('Something went wrong.')
     }
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} user`;
+  async findLoggedInUser(token: string): Promise<User> {
+    try {
+      const decodedToken: any = this.jwtService.verify(token);
+      const userId: string = decodedToken.sub;
+
+      return this.findById(userId);
+    } catch (error) {
+      Logger.error(error)
+      throw new BadRequestException('Something went wrong.')
+    }
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async updatePassword(token: string, updateUserPasswordDto: UpdateUserPasswordDto): Promise<User> {
+    const user = await this.findLoggedInUser(token);
+
+    const isOriginalPasswordCorrect = await compareHash(updateUserPasswordDto.password, user.password);
+    if (!isOriginalPasswordCorrect) {
+      throw new BadRequestException('Incorrect original password.');
+    }
+    if (await compareHash(updateUserPasswordDto.new_password, user.password)) {
+      throw new BadRequestException('New password cannot be the same as the original password.');
+    }
+
+    user.password = await hash(updateUserPasswordDto.new_password);
+    try {
+      return {...(await this.usersRepository.save(user)), password: undefined};
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException('Something went wrong.');
+    }
+  }
+
+  
+  async update(token: string, updateUserDto: UpdateUserDto) {
+    let change = false;
+    const user = await this.findLoggedInUser(token);
+
+    if (updateUserDto.first_name && updateUserDto.first_name !== user.first_name) {
+      change = true
+      user.first_name = updateUserDto.first_name
+    }
+    if (updateUserDto.last_name && updateUserDto.last_name !== user.last_name) {
+      change = true
+      user.last_name = updateUserDto.last_name
+    }
+    if (updateUserDto.email && updateUserDto.email !== user.email) {
+      change = true
+      user.email = updateUserDto.email
+    }
+
+    if (change) {
+      try {
+        await this.usersRepository.save(user);
+        user.password = undefined
+        return user
+      } catch (error) {
+        if (error instanceof QueryFailedError && error.message.includes('duplicate key value violates unique constraint')) {
+          Logger.error(error);
+          throw new BadRequestException('This email is already in use.');
+        } else {
+          Logger.error(error);
+          throw new InternalServerErrorException('Something went wrong.');
+        }
+      }
+    } else {
+      return 'Nothing to change.'
+    }
+  }
+
+  async removeUser(token: string) {
+    try {
+      const decodedToken: any = this.jwtService.verify(token);
+      const userId: string = decodedToken.sub;
+
+      const user = await this.findById(userId);
+      return this.remove(user.id);
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException('Something went wrong.');
+    }
   }
 }

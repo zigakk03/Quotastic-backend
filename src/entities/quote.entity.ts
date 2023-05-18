@@ -9,7 +9,7 @@ export class Quote {
   @PrimaryGeneratedColumn('uuid')
   @IsUUID()
   @Expose()
-  quote_id: string;
+  id: string;
 
   @CreateDateColumn()
   @Expose()

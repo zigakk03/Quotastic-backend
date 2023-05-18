@@ -20,3 +20,32 @@ Content-Type: application/json
 
 ### POST /signout
 POST http://localhost:8080/signout HTTP/1.1
+
+
+
+
+### GET /me
+GET http://localhost:8080/me HTTP/1.1
+
+### PATCH /me/update-password
+PATCH http://localhost:8080/me/update-password HTTP/1.1
+Content-Type: application/json
+
+{
+  	"password": "John1234!",
+  	"confirm_password": "John1234!",
+  	"new_password": "BlaBla123!"
+}
+
+### PATCH /me/update
+PATCH http://localhost:8080/me/update HTTP/1.1
+Content-Type: application/json
+
+{
+	"first_name": "John",
+	"last_name": "Doe",
+  	"email": "john@gmail.com"
+}
+
+### PATCH /me/update
+DELETE http://localhost:8080/me/delete HTTP/1.1

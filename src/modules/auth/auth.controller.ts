@@ -8,7 +8,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { RequestWithUser } from 'common/interfaces/auth.interface';
 import { Response } from 'express';
 
-@ApiTags('auth')
+@ApiTags('Auth')
 @Controller()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

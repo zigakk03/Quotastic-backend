@@ -1,34 +1,56 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Request, Response } from 'express';
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
+import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 
-@Controller('user')
+@ApiTags('User')
+@Controller('me')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @ApiCreatedResponse({ description: 'Create a new user.' })
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
+  @ApiCreatedResponse({ description: 'Gets the logged in user info.' })
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  async loggedInUser(@Req() req: Request) {
+    const token = req.cookies['access_token']
+    const user = await this.userService.findLoggedInUser(token);
+    user.password = undefined
+    return user
   }
 
-  @Get(':id')
+  @ApiCreatedResponse({ description: 'Finds a user with the given id.' })
+  @Get('find/:id')
   findOne(@Param('id') id: string) {
-    return this.userService.findOne(id);
+    return this.userService.findById(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
+  @ApiCreatedResponse({ description: 'Updates the password of signed in the user.' })
+  @Patch('update-password')
+  updatePassword(@Body() updateUserPasswordDto: UpdateUserPasswordDto, @Req() req: Request) {
+    const token = req.cookies['access_token']
+    return this.userService.updatePassword(token, updateUserPasswordDto);
   }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(id);
+  
+  @ApiCreatedResponse({ description: 'Updates the email, first name, or last name of the signed in user.' })
+  @Patch('update')
+  update(@Body() updateUserDto: UpdateUserDto, @Req() req: Request) {
+    const token = req.cookies['access_token']
+    return this.userService.update(token, updateUserDto);
+  }
+  
+  @ApiCreatedResponse({ description: 'Deletes and signs out the user.' })
+  @Delete('delete')
+  remove(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const token = req.cookies['access_token']
+    res.clearCookie('access_token');
+    return this.userService.removeUser(token);
   }
 }
