@@ -32,9 +32,10 @@ export class UserController {
     return this.userService.updatePassword(token, updateUserPasswordDto);
   }
   
-  @Patch('update/:id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
+  @Patch('update')
+  update(@Body() updateUserDto: UpdateUserDto, @Req() req: Request) {
+    const token = req.cookies['access_token']
+    return this.userService.update(token, updateUserDto);
   }
   
   @Delete(':id')

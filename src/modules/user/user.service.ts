@@ -79,7 +79,43 @@ export class UserService extends AbstractService{
   }
 
   
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(token: string, updateUserDto: UpdateUserDto) {
+    let change = false;
+    let user: User;
+    try {
+      const decodedToken: any = this.jwtService.verify(token);
+      const userId: string = decodedToken.sub;
+
+      user = await this.findById(userId);
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException('Something went wrong.');
+    }
+
+    if (updateUserDto.first_name && updateUserDto.first_name !== user.first_name) {
+      change = true
+      user.first_name = updateUserDto.first_name
+    }
+    if (updateUserDto.last_name && updateUserDto.last_name !== user.last_name) {
+      change = true
+      user.last_name = updateUserDto.last_name
+    }
+    if (updateUserDto.email && updateUserDto.email !== user.email) {
+      change = true
+      user.email = updateUserDto.email
+    }
+
+    if (change) {
+      try {
+        this.usersRepository.save(user);
+        user.password = undefined
+        return user
+      } catch (error) {
+        Logger.error(error);
+        throw new InternalServerErrorException('Something went wrong.');
+      }
+    } else {
+      return 'Nothing to change.'
+    }
   }
 }
