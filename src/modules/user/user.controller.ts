@@ -4,8 +4,6 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Request, Response } from 'express';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
-import { User } from 'entities/user.entity';
-import { AuthService } from 'modules/auth/auth.service';
 
 @Controller('me')
 export class UserController {
@@ -17,9 +15,11 @@ export class UserController {
   }
 
   @Get()
-  loggedInUser(@Req() req: Request) {
+  async loggedInUser(@Req() req: Request) {
     const token = req.cookies['access_token']
-    return this.userService.findLoggedInUser(token);
+    const user = await this.userService.findLoggedInUser(token);
+    user.password = undefined
+    return user
   }
 
   @Get('find/:id')

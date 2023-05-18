@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger }
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { User } from 'entities/user.entity';
 import { AbstractService } from 'common/abstract.service';
 import { compareHash, hash } from 'utils/bcrypt';
@@ -29,7 +29,7 @@ export class UserService extends AbstractService{
     
     try {
       const newUser = this.usersRepository.create({ ...createUserDto,})
-      return this.usersRepository.save(newUser)
+      return await this.usersRepository.save(newUser)
     } catch (error) {
       Logger.error(error)
       throw new BadRequestException('Something went wrong.')
@@ -41,8 +41,7 @@ export class UserService extends AbstractService{
       const decodedToken: any = this.jwtService.verify(token);
       const userId: string = decodedToken.sub;
 
-      const user: User = {...(await this.findById(userId)), password: undefined};
-      return user;
+      return this.findById(userId);
     } catch (error) {
       Logger.error(error)
       throw new BadRequestException('Something went wrong.')
@@ -50,16 +49,7 @@ export class UserService extends AbstractService{
   }
 
   async updatePassword(token: string, updateUserPasswordDto: UpdateUserPasswordDto): Promise<User> {
-    let user: User;
-    try {
-      const decodedToken: any = this.jwtService.verify(token);
-      const userId: string = decodedToken.sub;
-
-      user = await this.findById(userId);
-    } catch (error) {
-      Logger.error(error);
-      throw new BadRequestException('Something went wrong.');
-    }
+    const user = await this.findLoggedInUser(token);
 
     const isOriginalPasswordCorrect = await compareHash(updateUserPasswordDto.password, user.password);
     if (!isOriginalPasswordCorrect) {
@@ -71,7 +61,7 @@ export class UserService extends AbstractService{
 
     user.password = await hash(updateUserPasswordDto.new_password);
     try {
-      return this.usersRepository.save(user);
+      return {...(await this.usersRepository.save(user)), password: undefined};
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException('Something went wrong.');
@@ -81,16 +71,7 @@ export class UserService extends AbstractService{
   
   async update(token: string, updateUserDto: UpdateUserDto) {
     let change = false;
-    let user: User;
-    try {
-      const decodedToken: any = this.jwtService.verify(token);
-      const userId: string = decodedToken.sub;
-
-      user = await this.findById(userId);
-    } catch (error) {
-      Logger.error(error);
-      throw new BadRequestException('Something went wrong.');
-    }
+    const user = await this.findLoggedInUser(token);
 
     if (updateUserDto.first_name && updateUserDto.first_name !== user.first_name) {
       change = true
@@ -107,12 +88,17 @@ export class UserService extends AbstractService{
 
     if (change) {
       try {
-        this.usersRepository.save(user);
+        await this.usersRepository.save(user);
         user.password = undefined
         return user
       } catch (error) {
-        Logger.error(error);
-        throw new InternalServerErrorException('Something went wrong.');
+        if (error instanceof QueryFailedError && error.message.includes('duplicate key value violates unique constraint')) {
+          Logger.error(error);
+          throw new BadRequestException('This email is already in use.');
+        } else {
+          Logger.error(error);
+          throw new InternalServerErrorException('Something went wrong.');
+        }
       }
     } else {
       return 'Nothing to change.'
