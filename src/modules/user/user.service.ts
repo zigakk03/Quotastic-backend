@@ -118,4 +118,17 @@ export class UserService extends AbstractService{
       return 'Nothing to change.'
     }
   }
+
+  async removeUser(token: string) {
+    try {
+      const decodedToken: any = this.jwtService.verify(token);
+      const userId: string = decodedToken.sub;
+
+      const user = await this.findById(userId);
+      return this.remove(user.id);
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException('Something went wrong.');
+    }
+  }
 }

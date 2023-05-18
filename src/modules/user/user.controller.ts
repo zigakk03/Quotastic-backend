@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { User } from 'entities/user.entity';
+import { AuthService } from 'modules/auth/auth.service';
 
 @Controller('me')
 export class UserController {
@@ -38,8 +39,10 @@ export class UserController {
     return this.userService.update(token, updateUserDto);
   }
   
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(id);
+  @Delete('delete')
+  remove(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const token = req.cookies['access_token']
+    res.clearCookie('access_token');
+    return this.userService.removeUser(token);
   }
 }
