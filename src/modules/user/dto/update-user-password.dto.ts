@@ -1,9 +1,8 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { CreateUserDto } from './create-user.dto';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, Matches } from 'class-validator';
 import { Match } from 'decorators/match.decorator';
 
-export class UpdateUserPasswordDto extends PartialType(CreateUserDto) {
+export class UpdateUserPasswordDto {
     @ApiProperty({ required: true })
     @IsNotEmpty()
     @Matches(/^(?=.*\d)(?=.*[A-Za-z])[A-Za-z\d\s~@#$%^&*+=`|{}:;"'<>?!,./[\]-]{9,}$/, {
