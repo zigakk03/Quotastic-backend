@@ -23,13 +23,15 @@ export class QuoteController {
     return this.quoteService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateQuoteDto: CreateUpdateQuoteDto) {
-    return this.quoteService.update(+id, updateQuoteDto);
+  @Patch('me/myquote/:id')
+  update(@Param('id') id: string, @Body() updateQuoteDto: CreateUpdateQuoteDto, @Req() req: Request) {
+    const token = req.cookies['access_token']
+    return this.quoteService.update(id, updateQuoteDto, token);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.quoteService.remove(id);
+  @Delete('me/myquote/:id')
+  remove(@Param('id') id: string, @Req() req: Request) {
+    const token = req.cookies['access_token']
+    return this.quoteService.removeQuote(id, token);
   }
 }

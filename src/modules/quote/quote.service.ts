@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { CreateUpdateQuoteDto } from './dto/create-update-quote.dto';
 import { AbstractService } from 'common/abstract.service';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -17,7 +17,7 @@ export class QuoteService extends AbstractService{
     super(quotesRepository);
   }
 
-  async create(token: string, createQuoteDto: CreateUpdateQuoteDto) {
+  async create(token: string, createQuoteDto: CreateUpdateQuoteDto): Promise<Quote>  {
     const user: User = await this.usersService.findLoggedInUser(token)
     const quote = {text: createQuoteDto.text, user}
 
@@ -35,7 +35,34 @@ export class QuoteService extends AbstractService{
     return `This action returns a #${id} quote`;
   }
 
-  update(id: number, updateQuoteDto: CreateUpdateQuoteDto) {
-    return `This action updates a #${id} quote`;
+  async update(id: string, updateQuoteDto: CreateUpdateQuoteDto, token: string): Promise<Quote> {
+    const quote = await this.findById(id, ['user']) as Quote
+    const user = await this.usersService.findLoggedInUser(token)
+
+    if (quote.user.id !== user.id) {
+      throw new BadRequestException('You can\'t edit this quote.')
+    }
+
+    quote.text = updateQuoteDto.text
+
+    try {
+      const updatedQuote = await this.quotesRepository.save(quote);
+      updatedQuote.user.password = undefined
+      return updatedQuote
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException('Something went wrong.');
+    }
+  }
+
+  async removeQuote(id: string, token: string): Promise<Quote> {
+    const quote = await this.findById(id, ['user']) as Quote
+    const user = await this.usersService.findLoggedInUser(token)
+
+    if (quote.user.id !== user.id) {
+      throw new BadRequestException('You can\'t delete this quote.')
+    }
+
+    return this.remove(id)
   }
 }
