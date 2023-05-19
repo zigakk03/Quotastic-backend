@@ -14,7 +14,7 @@ POST http://localhost:8080/login HTTP/1.1
 Content-Type: application/json
 
 {
-  	"email": "john@gmail.com",
+  	"email": "john2@gmail.com",
   	"password": "John1234!"
 }
 
@@ -71,3 +71,12 @@ Content-Type: application/json
 
 ### DELETE /me/delete
 DELETE http://localhost:8080/me/myquote/faf9346a-22e8-40c1-890b-09a813c8b473 HTTP/1.1
+
+
+
+
+### PUT /quotes/:id/upvote
+PUT http://localhost:8080/quotes/d79d5798-6a09-4fd1-b949-b3f003b8f950/upvote HTTP/1.1
+
+### PUT /quotes/:id/downvote
+PUT http://localhost:8080/quotes/d79d5798-6a09-4fd1-b949-b3f003b8f950/downvote HTTP/1.1
