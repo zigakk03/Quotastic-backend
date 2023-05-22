@@ -61,7 +61,7 @@ export class LikeService extends AbstractService{
         const quote = await this.quoteService.findById(id,['user']) as Quote
 
         if (user.id === quote.user.id) {
-            throw new BadRequestException('You can\'t like your own quote.')
+            throw new BadRequestException('You can\'t dislike your own quote.')
         }
         
         try {
@@ -79,7 +79,7 @@ export class LikeService extends AbstractService{
                 return response
             } else {
                 const like = await this.findById(result.id)
-                if (like.liked === null) {
+                if (like.liked === null || like.liked === true) {
                     like.liked = false
                 } else {
                     like.liked = null
@@ -91,4 +91,21 @@ export class LikeService extends AbstractService{
             throw new BadRequestException('Something went wrong.')
         }
     }
+
+    async findOne(id: string) {
+        const quote = await this.quoteService.findById(id, ['user']) as Quote
+        
+        let user_name: string
+        if (quote.user.first_name === null || quote.user.first_name === '' || quote.user.last_name === null || quote.user.last_name === '') {
+          user_name = quote.user.email
+        } else {
+          user_name = quote.user.first_name + ' ' + quote.user.last_name
+        }
+        
+        const query = await this.likesRepository.query(`SELECT COUNT(CASE WHEN liked = true THEN 1 END) - COUNT(CASE WHEN liked = false THEN 1 END) as likes_sum FROM "like" WHERE quote_id = '${id}';`)
+        const likes_sum = query[0].likes_sum
+        quote.user = undefined
+    
+        return {quote, user_name, likes_number: likes_sum}
+      }
 }

@@ -1,6 +1,7 @@
-import { Controller, Param, Put, Req } from '@nestjs/common';
+import { Controller, Get, Param, Put, Req } from '@nestjs/common';
 import { LikeService } from './like.service';
 import { Request } from 'express';
+import { Public } from 'decorators/public.decorator';
 
 @Controller('quotes')
 export class LikeController {
@@ -16,5 +17,11 @@ export class LikeController {
   downvote (@Param('id') id: string, @Req() req: Request){
     const token = req.cookies['access_token']
     return this.likeService.downvoteQuote(id, token)
+  }
+  
+  @Public()
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.likeService.findOne(id);
   }
 }

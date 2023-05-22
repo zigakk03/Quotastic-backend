@@ -1,37 +1,25 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
+import { Controller, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
 import { QuoteService } from './quote.service';
 import { CreateUpdateQuoteDto } from './dto/create-update-quote.dto';
 import { Request } from 'express';
-import { Public } from 'decorators/public.decorator';
 
-@Controller()
+@Controller('me/myquote')
 export class QuoteController {
   constructor(private readonly quoteService: QuoteService) {}
 
-  @Post('me/myquote')
+  @Post('')
   create(@Body() createQuoteDto: CreateUpdateQuoteDto, @Req() req: Request) {
     const token = req.cookies['access_token']
     return this.quoteService.create(token, createQuoteDto);
   }
 
-  @Get()
-  findAll() {
-    return this.quoteService.findAll();
-  }
-
-  @Public()
-  @Get('quotes/:id')
-  findOne(@Param('id') id: string) {
-    return this.quoteService.findOne(id);
-  }
-
-  @Patch('me/myquote/:id')
+  @Patch(':id')
   update(@Param('id') id: string, @Body() updateQuoteDto: CreateUpdateQuoteDto, @Req() req: Request) {
     const token = req.cookies['access_token']
     return this.quoteService.update(id, updateQuoteDto, token);
   }
 
-  @Delete('me/myquote/:id')
+  @Delete(':id')
   remove(@Param('id') id: string, @Req() req: Request) {
     const token = req.cookies['access_token']
     return this.quoteService.removeQuote(id, token);
