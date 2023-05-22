@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/
 import { QuoteService } from './quote.service';
 import { CreateUpdateQuoteDto } from './dto/create-update-quote.dto';
 import { Request } from 'express';
+import { Public } from 'decorators/public.decorator';
 
 @Controller()
 export class QuoteController {
@@ -18,9 +19,10 @@ export class QuoteController {
     return this.quoteService.findAll();
   }
 
-  @Get(':id')
+  @Public()
+  @Get('quotes/:id')
   findOne(@Param('id') id: string) {
-    return this.quoteService.findOne(+id);
+    return this.quoteService.findOne(id);
   }
 
   @Patch('me/myquote/:id')
