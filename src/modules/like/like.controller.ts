@@ -24,4 +24,10 @@ export class LikeController {
   findOne(@Param('id') id: string) {
     return this.likeService.findOne(id);
   }
+  
+  @Public()
+  @Get('//random')
+  random() {
+    return this.likeService.random();
+  }
 }

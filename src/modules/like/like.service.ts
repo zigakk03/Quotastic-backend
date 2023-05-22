@@ -108,4 +108,9 @@ export class LikeService extends AbstractService{
     
         return {quote, user_name, likes_number: likes_sum}
       }
+
+      async random(){
+        const query = await this.likesRepository.query('SELECT id FROM quote ORDER BY RANDOM() LIMIT 1;')
+        return await this.findOne(query[0].id)
+      }
 }
