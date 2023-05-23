@@ -1,10 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, UseInterceptors, HttpStatus, HttpCode, UploadedFile, BadRequestException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Request, Response } from 'express';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { isFileExtensionSafe, removeFile, saveImageToStorage } from 'common/imageStorage';
+import { join } from 'path';
+import { User } from 'entities/user.entity';
 
 @ApiTags('User')
 @Controller('me')
@@ -52,5 +56,27 @@ export class UserController {
     const token = req.cookies['access_token']
     res.clearCookie('access_token');
     return this.userService.removeUser(token);
+  }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('avatar', saveImageToStorage))
+  async upload(@UploadedFile() file: Express.Multer.File, @Req() req: Request): Promise<User> {
+    const token = req.cookies['access_token'];
+    const fileName = file?.filename;
+
+    if (!fileName) {
+      throw new BadRequestException('File must be a png, jpg, or jpeg.');
+    }
+
+    const imagesFolderPath = join(process.cwd(), 'files');
+    const fullImagePath = join(imagesFolderPath, file.filename);
+    
+
+    if (await isFileExtensionSafe(fullImagePath)) {
+      return this.userService.updateUserImageId(token, fileName);
+    }
+
+    removeFile(fullImagePath);
+    throw new BadRequestException('File is unsafe');
   }
 }

@@ -117,4 +117,17 @@ export class UserService extends AbstractService{
       throw new BadRequestException('Something went wrong.');
     }
   }
+
+  async updateUserImageId(token: string, filename: string){
+    const user = await this.findLoggedInUser(token)
+    user.avatar = filename
+    try {
+      const response = await this.usersRepository.save(user)
+      response.password = undefined
+      return response
+    } catch (error) {
+      Logger.error(error)
+      throw new InternalServerErrorException('Something went wrong.')
+    }
+  }
 }
