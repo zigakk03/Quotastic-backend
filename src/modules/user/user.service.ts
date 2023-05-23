@@ -29,7 +29,9 @@ export class UserService extends AbstractService{
     
     try {
       const newUser = this.usersRepository.create({ ...createUserDto,})
-      return await this.usersRepository.save(newUser)
+      const response = await this.usersRepository.save(newUser)
+      response.password = undefined
+      return response
     } catch (error) {
       Logger.error(error)
       throw new BadRequestException('Something went wrong.')
