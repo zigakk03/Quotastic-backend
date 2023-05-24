@@ -105,9 +105,10 @@ export class LikeService extends AbstractService{
         const query = await this.likesRepository.query(`SELECT COUNT(CASE WHEN liked = true THEN 1 END) - COUNT(CASE WHEN liked = false THEN 1 END) as likes_sum FROM "like" WHERE quote_id = '${id}';`)
         const likes_sum = query[0].likes_sum
         const avatar = quote.user.avatar
+        const user_id = quote.user.id
         quote.user = undefined
     
-        return {quote, user_name, avatar, likes_number: likes_sum}
+        return {quote, user:{user_id ,user_name, avatar}, likes_number: likes_sum}
     }
 
     async random(){
@@ -125,6 +126,30 @@ export class LikeService extends AbstractService{
                 'FROM quote q LEFT OUTER JOIN "like" l ON q.id = l.quote_id ' +
                 'GROUP BY q.id ' +
                 'ORDER BY likes_sum DESC;')
+            const total = query.length
+    
+            let data = []
+            for (let i = skip; i < total && i < skip + take; i++) {
+                const result = await this.findOne(query[i].id)
+                data.push(result)
+            }
+    
+            return {data, meta: {total, page, last_page: Math.ceil(total / take)}}
+        } catch (error) {
+            Logger.error(error)
+            throw new InternalServerErrorException('Something went wrong')
+        }
+    }
+    
+    async paginatedDate(page: number){
+        const take = 9
+        const skip = (page-1)*take
+
+        try {
+            const query = await this.likesRepository.query(
+                'SELECT q.id '+
+                'FROM quote q '+
+                'ORDER BY q.created_at DESC;')
             const total = query.length
     
             let data = []

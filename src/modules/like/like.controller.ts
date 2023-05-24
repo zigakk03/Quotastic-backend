@@ -36,4 +36,10 @@ export class LikeController {
   paginatedMostLiked(@Param('page') page: number) {
     return this.likeService.paginatedMostLiked(page)
   }
+  
+  @Public()
+  @Get('date/:page')
+  paginatedDate(@Param('page') page: number) {
+    return this.likeService.paginatedDate(page)
+  }
 }
