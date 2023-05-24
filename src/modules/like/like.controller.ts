@@ -20,14 +20,20 @@ export class LikeController {
   }
   
   @Public()
-  @Get(':id')
+  @Get('one/:id')
   findOne(@Param('id') id: string) {
     return this.likeService.findOne(id);
   }
   
   @Public()
-  @Get('//random')
+  @Get('/random')
   random() {
     return this.likeService.random();
+  }
+
+  @Public()
+  @Get(':page')
+  paginatedMostLiked(@Param('page') page: number) {
+    return this.likeService.paginatedMostLiked(page)
   }
 }
