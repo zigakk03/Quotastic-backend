@@ -47,28 +47,5 @@ export abstract class AbstractService {
       throw new InternalServerErrorException('Something went wrong')
     }
   }
-
-  async paginate(page = 1, relations = []): Promise<PaginatedResult> {
-    const take = 10
-
-    try {
-      const [data, total] = await this.repository.findAndCount({
-        take,
-        skip: (page - 1) * take,
-        relations,
-      })
-
-      return {
-        data: data,
-        meta: {
-          total,
-          page,
-          last_page: Math.ceil(total / take),
-        },
-      }
-    } catch (error) {
-      Logger.error(error)
-      throw new InternalServerErrorException('Something went wrong')
-    }
-  }
+  
 }
