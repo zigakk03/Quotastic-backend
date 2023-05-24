@@ -38,6 +38,27 @@ export class UserService extends AbstractService{
     }
   }
 
+  async carmaAndNumberOfQuotes(id: string){
+    try {
+      const carmaQuery = await this.usersRepository.query(
+        'SELECT COUNT(CASE WHEN liked = true THEN 1 END) - COUNT(CASE WHEN liked = false THEN 1 END) AS carma '+
+        'FROM "like" l INNER JOIN quote q ON q.id = l.quote_id '+
+        `WHERE q.user_id = '${id}';`)
+      const carma = carmaQuery[0].carma
+
+      const countQuery = await this.usersRepository.query(
+        'SELECT COUNT(*) AS number_of_quotes '+
+        'FROM quote '+
+        `WHERE user_id = '${id}';`)
+      const numOfQuotes = countQuery[0].number_of_quotes
+
+      return {carma, numOfQuotes}
+    } catch (error) {
+      Logger.error(error)
+      throw new BadRequestException('Something went wrong.')
+    }
+  }
+
   async findLoggedInUser(token: string): Promise<User> {
     try {
       const decodedToken: any = this.jwtService.verify(token);

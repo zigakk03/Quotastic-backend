@@ -9,6 +9,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { isFileExtensionSafe, removeFile, saveImageToStorage } from 'common/imageStorage';
 import { join } from 'path';
 import { User } from 'entities/user.entity';
+import { Public } from 'decorators/public.decorator';
 
 @ApiTags('User')
 @Controller('me')
@@ -27,7 +28,18 @@ export class UserController {
     const token = req.cookies['access_token']
     const user = await this.userService.findLoggedInUser(token);
     user.password = undefined
-    return user
+    const carmaAndNumberOfQuotes = await this.userService.carmaAndNumberOfQuotes(user.id)
+    return {user, carma: carmaAndNumberOfQuotes.carma, quotes: carmaAndNumberOfQuotes.numOfQuotes}
+  }
+  
+  @Public()
+  @ApiCreatedResponse({ description: 'Gets the logged in user info.' })
+  @Get(':id')
+  async getUserWithId(@Param('id') id: string) {
+    const user = await this.userService.findById(id);
+    user.password = undefined
+    const carmaAndNumberOfQuotes = await this.userService.carmaAndNumberOfQuotes(id)
+    return {user, carma: carmaAndNumberOfQuotes.carma, quotes: carmaAndNumberOfQuotes.numOfQuotes}
   }
 
   @ApiCreatedResponse({ description: 'Finds a user with the given id.' })
