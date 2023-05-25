@@ -164,4 +164,80 @@ export class LikeService extends AbstractService{
             throw new InternalServerErrorException('Something went wrong')
         }
     }
+
+    
+    async getPaginatedLikedUserQuotes(id: string, page: number){
+        const take = 4
+        const skip = (page-1)*take
+
+        try {
+            const query = await this.likesRepository.query(
+                `SELECT quote_id
+                FROM "like"
+                WHERE user_id = '${id}'`)
+            const total = query.length
+    
+            let data = []
+            for (let i = skip; i < total && i < skip + take; i++) {
+                const result = await this.findOne(query[i].quote_id)
+                data.push(result)
+            }
+    
+            return {data, meta: {total, page, last_page: Math.ceil(total / take)}}
+        } catch (error) {
+            Logger.error(error)
+            throw new InternalServerErrorException('Something went wrong')
+        }
+    }
+  
+    async getPaginatedRescentUserQuotes(id: string, page: number){
+        const take = 4
+        const skip = (page-1)*take
+
+        try {
+            const query = await this.likesRepository.query(
+                `SELECT id
+                FROM quote
+                WHERE user_id='${id}'
+                ORDER BY created_at DESC`)
+            const total = query.length
+    
+            let data = []
+            for (let i = skip; i < total && i < skip + take; i++) {
+                const result = await this.findOne(query[i].id)
+                data.push(result)
+            }
+    
+            return {data, meta: {total, page, last_page: Math.ceil(total / take)}}
+        } catch (error) {
+            Logger.error(error)
+            throw new InternalServerErrorException('Something went wrong')
+        }
+    }
+  
+    async getPaginatedMostLikedUserQuotes(id: string, page: number){
+        const take = 4
+        const skip = (page-1)*take
+
+        try {
+            const query = await this.likesRepository.query(
+                `SELECT q.id, COUNT(CASE WHEN liked = true THEN 1 END) - COUNT(CASE WHEN liked = false THEN 1 END) as carma
+                FROM "like" l RIGHT OUTER JOIN quote q ON q.id = l.quote_id
+                WHERE q.user_id = '${id}'
+                GROUP BY q.id
+                ORDER BY carma DESC;`)
+            const total = query.length
+    
+            let data = []
+            for (let i = skip; i < total && i < skip + take; i++) {
+                const result = await this.findOne(query[i].id)
+                data.push(result)
+            }
+    
+            return {data, meta: {total, page, last_page: Math.ceil(total / take)}}
+        } catch (error) {
+            Logger.error(error)
+            throw new InternalServerErrorException('Something went wrong')
+        }
+    }
 }
