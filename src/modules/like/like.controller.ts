@@ -42,4 +42,22 @@ export class LikeController {
   paginatedDate(@Param('page') page: number) {
     return this.likeService.paginatedDate(page)
   }
+  
+  @Public()
+  @Get('user/:id/liked/:page')
+  getPaginatedLikedUserQuotes(@Param('id') id: string, @Param('page') page: number){
+    return this.likeService.getPaginatedLikedUserQuotes(id, page)
+  }
+  
+  @Public()
+  @Get('user/:id/rescent/:page')
+  getPaginatedRescentUserQuotes(@Param('id') id: string, @Param('page') page: number){
+    return this.likeService.getPaginatedRescentUserQuotes(id, page)
+  }
+  
+  @Public()
+  @Get('user/:id/mostliked/:page')
+  getPaginatedMostLikedUserQuotes(@Param('id') id: string, @Param('page') page: number){
+    return this.likeService.getPaginatedMostLikedUserQuotes(id, page)
+  }
 }

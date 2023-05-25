@@ -33,19 +33,13 @@ export class UserController {
   }
   
   @Public()
-  @ApiCreatedResponse({ description: 'Gets the logged in user info.' })
+  @ApiCreatedResponse({ description: 'Finds a user with the given id.' })
   @Get(':id')
   async getUserWithId(@Param('id') id: string) {
     const user = await this.userService.findById(id);
     user.password = undefined
     const carmaAndNumberOfQuotes = await this.userService.carmaAndNumberOfQuotes(id)
     return {user, carma: carmaAndNumberOfQuotes.carma, quotes: carmaAndNumberOfQuotes.numOfQuotes}
-  }
-
-  @ApiCreatedResponse({ description: 'Finds a user with the given id.' })
-  @Get('find/:id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findById(id);
   }
 
   @ApiCreatedResponse({ description: 'Updates the password of signed in the user.' })
