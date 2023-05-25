@@ -4,15 +4,6 @@
 
 Quotastic API is a RESTful API that allows users to create, manage, and interact with quotes. It provides endpoints for creating quotes, managing user profiles, and performing various operations related to quotes.
 
-## Table of Contents
-  - Installation
-  - Usage
-  - Endpoints
-  - Authentication
-  - Error Handling
-  - Contributing
-  - License
-
 ## Installation
 
 1. Clone the repository:
