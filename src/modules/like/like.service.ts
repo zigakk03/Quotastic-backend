@@ -4,6 +4,7 @@ import { AbstractService } from 'common/abstract.service';
 import { Like } from 'entities/like.entity';
 import { Quote } from 'entities/quote.entity';
 import { User } from 'entities/user.entity';
+import { query } from 'express';
 import { QuoteService } from 'modules/quote/quote.service';
 import { UserService } from 'modules/user/user.service';
 import { Repository } from 'typeorm';
@@ -92,7 +93,17 @@ export class LikeService extends AbstractService{
         }
     }
 
-    async findOne(id: string) {
+    async findOne(id: string, token?: string) {
+        let activeUserLiked: boolean = null
+        let activeUser
+        if (token) {
+          activeUser = await this.usersService.findLoggedInUser(token) as User
+          const query = await this.likesRepository.query(`SELECT liked FROM "like" WHERE (user_id='${activeUser.id}') AND (quote_id='${id}')`)
+          if (query.length > 0) {
+            activeUserLiked = query[0].liked
+          }
+        }
+
         const quote = await this.quoteService.findById(id, ['user']) as Quote
         
         let user_name: string
@@ -108,15 +119,15 @@ export class LikeService extends AbstractService{
         const user_id = quote.user.id
         quote.user = undefined
     
-        return {quote, user:{user_id ,user_name, avatar}, likes_number: likes_sum}
+        return {quote, user:{user_id ,user_name, avatar}, likes_number: likes_sum, activeUserLiked}
     }
 
-    async random(){
+    async random(token?: string){
         const query = await this.likesRepository.query('SELECT id FROM quote ORDER BY RANDOM() LIMIT 1;')
-        return await this.findOne(query[0].id)
+        return await this.findOne(query[0].id, token)
     }
 
-    async paginatedMostLiked(page: number){
+    async paginatedMostLiked(page: number, token?: string){
         const take = 9
         const skip = (page-1)*take
 
@@ -130,7 +141,7 @@ export class LikeService extends AbstractService{
     
             let data = []
             for (let i = skip; i < total && i < skip + take; i++) {
-                const result = await this.findOne(query[i].id)
+                const result = await this.findOne(query[i].id, token)
                 data.push(result)
             }
     
@@ -141,7 +152,7 @@ export class LikeService extends AbstractService{
         }
     }
     
-    async paginatedDate(page: number){
+    async paginatedDate(page: number, token?: string){
         const take = 9
         const skip = (page-1)*take
 
@@ -154,7 +165,7 @@ export class LikeService extends AbstractService{
     
             let data = []
             for (let i = skip; i < total && i < skip + take; i++) {
-                const result = await this.findOne(query[i].id)
+                const result = await this.findOne(query[i].id, token)
                 data.push(result)
             }
     
@@ -166,7 +177,7 @@ export class LikeService extends AbstractService{
     }
 
     
-    async getPaginatedLikedUserQuotes(id: string, page: number){
+    async getPaginatedLikedUserQuotes(id: string, page: number, token?: string){
         const take = 4
         const skip = (page-1)*take
 
@@ -179,7 +190,7 @@ export class LikeService extends AbstractService{
     
             let data = []
             for (let i = skip; i < total && i < skip + take; i++) {
-                const result = await this.findOne(query[i].quote_id)
+                const result = await this.findOne(query[i].quote_id, token)
                 data.push(result)
             }
     
@@ -190,7 +201,7 @@ export class LikeService extends AbstractService{
         }
     }
   
-    async getPaginatedRescentUserQuotes(id: string, page: number){
+    async getPaginatedRescentUserQuotes(id: string, page: number, token?: string){
         const take = 4
         const skip = (page-1)*take
 
@@ -204,7 +215,7 @@ export class LikeService extends AbstractService{
     
             let data = []
             for (let i = skip; i < total && i < skip + take; i++) {
-                const result = await this.findOne(query[i].id)
+                const result = await this.findOne(query[i].id, token)
                 data.push(result)
             }
     
@@ -215,7 +226,7 @@ export class LikeService extends AbstractService{
         }
     }
   
-    async getPaginatedMostLikedUserQuotes(id: string, page: number){
+    async getPaginatedMostLikedUserQuotes(id: string, page: number, token?: string){
         const take = 4
         const skip = (page-1)*take
 
@@ -230,7 +241,7 @@ export class LikeService extends AbstractService{
     
             let data = []
             for (let i = skip; i < total && i < skip + take; i++) {
-                const result = await this.findOne(query[i].id)
+                const result = await this.findOne(query[i].id, token)
                 data.push(result)
             }
     
