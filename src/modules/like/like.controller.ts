@@ -33,42 +33,48 @@ export class LikeController {
   @ApiCreatedResponse({ description: 'Finds a random quote.' })
   @Public()
   @Get('/random')
-  random() {
-    return this.likeService.random();
+  random(@Req() req?: Request) {
+    const token = req.cookies['access_token']
+    return this.likeService.random(token);
   }
 
   @ApiCreatedResponse({ description: 'Gets paginated most liked quotes.' })
   @Public()
   @Get(':page')
-  paginatedMostLiked(@Param('page') page: number) {
-    return this.likeService.paginatedMostLiked(page)
+  paginatedMostLiked(@Param('page') page: number, @Req() req?: Request) {
+    const token = req.cookies['access_token']
+    return this.likeService.paginatedMostLiked(page, token)
   }
   
   @ApiCreatedResponse({ description: 'Gets paginated newest quotes.' })
   @Public()
   @Get('date/:page')
-  paginatedDate(@Param('page') page: number) {
-    return this.likeService.paginatedDate(page)
+  paginatedDate(@Param('page') page: number, @Req() req?: Request) {
+    const token = req.cookies['access_token']
+    return this.likeService.paginatedDate(page, token)
   }
   
   @ApiCreatedResponse({ description: 'Gets paginated liked quotes of a specific user.' })
   @Public()
   @Get('user/:id/liked/:page')
-  getPaginatedLikedUserQuotes(@Param('id') id: string, @Param('page') page: number){
-    return this.likeService.getPaginatedLikedUserQuotes(id, page)
+  getPaginatedLikedUserQuotes(@Param('id') id: string, @Param('page') page: number, @Req() req?: Request){
+    const token = req.cookies['access_token']
+    return this.likeService.getPaginatedLikedUserQuotes(id, page, token)
   }
   
   @ApiCreatedResponse({ description: 'Gets paginated newest quotes of a specific user.' })
   @Public()
   @Get('user/:id/rescent/:page')
-  getPaginatedRescentUserQuotes(@Param('id') id: string, @Param('page') page: number){
-    return this.likeService.getPaginatedRescentUserQuotes(id, page)
+  getPaginatedRescentUserQuotes(@Param('id') id: string, @Param('page') page: number, @Req() req?: Request){
+    const token = req.cookies['access_token']
+    return this.likeService.getPaginatedRescentUserQuotes(id, page, token)
   }
   
   @ApiCreatedResponse({ description: 'Gets paginated most liked quotes of a specific user.' })
   @Public()
   @Get('user/:id/mostliked/:page')
-  getPaginatedMostLikedUserQuotes(@Param('id') id: string, @Param('page') page: number){
-    return this.likeService.getPaginatedMostLikedUserQuotes(id, page)
+  getPaginatedMostLikedUserQuotes(@Param('id') id: string, @Param('page') page: number, @Req() req?: Request){
+    const token = req.cookies['access_token']
+    return this.likeService.getPaginatedMostLikedUserQuotes(id, page, token)
   }
 }
