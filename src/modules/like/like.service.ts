@@ -29,20 +29,23 @@ export class LikeService extends AbstractService{
         }
         
         try {
-            const result = await this.likesRepository.query(`SELECT id FROM "like" WHERE (user_id = '${user.id}')AND(quote_id = '${quote.id}') LIMIT 1;`)
+            const result = await this.likesRepository.query(`
+            SELECT *
+            FROM "like"
+            WHERE (user_id = '${user.id}')AND(quote_id = '${quote.id}') LIMIT 1;`)
             
             if (result.length <= 0) {
                 const newLike = new Like
                 newLike.liked = true
                 newLike.quote = quote
                 newLike.user = user
-                const createdNewLike = this.likesRepository.create(newLike)
+                const createdNewLike = await this.likesRepository.create(newLike)
                 const response = await this.likesRepository.save(createdNewLike)
                 response.quote = undefined
                 response.user = undefined
                 return response
             } else {
-                const like = await this.findById(result.id)
+                const like = await this.findById(result[0].id)
                 if (like.liked) {
                     like.liked = null
                 } else {
@@ -79,7 +82,7 @@ export class LikeService extends AbstractService{
                 response.user = undefined
                 return response
             } else {
-                const like = await this.findById(result.id)
+                const like = await this.findById(result[0].id)
                 if (like.liked === null || like.liked === true) {
                     like.liked = false
                 } else {

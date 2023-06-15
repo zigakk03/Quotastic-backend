@@ -22,7 +22,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Quotastic API')
     .setDescription('This is API for Quotastic web app.')
-    .setVersion('1.0.1')
+    .setVersion('1.0.2')
     .build()
 
   const document = SwaggerModule.createDocument(app, config)
