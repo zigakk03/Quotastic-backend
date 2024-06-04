@@ -20,16 +20,14 @@ import { UserService } from 'modules/user/user.service';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
-        signOptions: { expiresIn: `${configService.get('JWT_SECRET_EXPIRES')}s` },
+        signOptions: {
+          expiresIn: `${configService.get('JWT_SECRET_EXPIRES')}s`,
+        },
       }),
     }),
   ],
   controllers: [LikeController],
-  providers: [
-    LikeService,
-    QuoteService,
-    UserService,
-  ],
-  exports: [LikeService]
+  providers: [LikeService, QuoteService, UserService],
+  exports: [LikeService],
 })
 export class LikeModule {}

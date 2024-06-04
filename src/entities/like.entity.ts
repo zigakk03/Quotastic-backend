@@ -1,12 +1,17 @@
 import { Expose } from 'class-transformer';
 import { IsUUID } from 'class-validator';
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { User } from './user.entity';
 import { Quote } from './quote.entity';
 
-
 @Entity()
-export class Like{
+export class Like {
   @PrimaryGeneratedColumn('uuid')
   @IsUUID()
   @Expose()
@@ -15,11 +20,11 @@ export class Like{
   @Column({ nullable: true })
   liked: boolean;
 
-  @ManyToOne(() => User, {onDelete: 'SET NULL'})
+  @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'user_id' })
-  user: User | null
+  user: User | null;
 
-  @ManyToOne(() => Quote, {onDelete: 'SET NULL'})
+  @ManyToOne(() => Quote, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'quote_id' })
-  quote: Quote | null
+  quote: Quote | null;
 }

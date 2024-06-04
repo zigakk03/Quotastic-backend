@@ -6,7 +6,6 @@ import { User } from 'entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
-
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
@@ -15,14 +14,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
-        signOptions: { expiresIn: `${configService.get('JWT_SECRET_EXPIRES')}s` },
+        signOptions: {
+          expiresIn: `${configService.get('JWT_SECRET_EXPIRES')}s`,
+        },
       }),
     }),
   ],
   controllers: [UserController],
-  providers: [
-    UserService,
-  ],
+  providers: [UserService],
   exports: [UserService],
 })
 export class UserModule {}

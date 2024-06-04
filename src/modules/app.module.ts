@@ -9,11 +9,11 @@ import { LikeModule } from './like/like.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
+    /*ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: [`.env.${process.env.STAGE}`],
       validationSchema: configValidationSchema,
-    }),
+    }),*/
     DatabaseModule,
     UserModule,
     AuthModule,

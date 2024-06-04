@@ -1,8 +1,14 @@
 import { Expose } from 'class-transformer';
 import { IsUUID } from 'class-validator';
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { User } from './user.entity';
-
 
 @Entity()
 export class Quote {
@@ -13,12 +19,12 @@ export class Quote {
 
   @CreateDateColumn()
   @Expose()
-  created_at: Date
+  created_at: Date;
 
   @Column({ nullable: false })
-  text: string
+  text: string;
 
-  @ManyToOne(() => User, {onDelete: 'SET NULL'})
+  @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'user_id' })
-  user: User | null
+  user: User | null;
 }
