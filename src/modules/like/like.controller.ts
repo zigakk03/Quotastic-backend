@@ -59,12 +59,12 @@ export class LikeController {
   })
   @Public()
   @Get('user/:id/liked/:page')
-  getPaginatedLikedUserQuotes(
+  async getPaginatedLikedUserQuotes(
     @Param('id') id: string,
     @Param('page') page: number,
     @Req() req?: Request,
   ) {
-    const token = req.cookies['access_token'];
+    const token = await req.cookies['access_token'];
     return this.likeService.getPaginatedLikedUserQuotes(id, page, token);
   }
 

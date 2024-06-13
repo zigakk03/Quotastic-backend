@@ -16,7 +16,7 @@ export class UpdateUserPasswordDto {
 
   @ApiProperty({ required: true })
   @IsNotEmpty()
-  @Match(UpdateUserPasswordDto, (field) => field.password, {
+  @Match(UpdateUserPasswordDto, (field) => field.new_password, {
     message: 'Passwords do not match.',
   })
   confirm_password: string;

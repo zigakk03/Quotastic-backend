@@ -214,8 +214,8 @@ export class LikeService extends AbstractService {
     try {
       const query = await this.likesRepository.query(
         `SELECT quote_id
-                FROM "like"
-                WHERE user_id = '${id}'`,
+            FROM "like"
+            WHERE user_id = '${id}' and liked = true`,
       );
       const total = query.length;
 
